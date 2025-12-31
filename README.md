@@ -12,7 +12,7 @@ A "Hybrid Search" Log Analysis tool designed for banking environments. It combin
     *   **Natural Language Queries**: Ask "Find payment errors from yesterday" or "Why did the Late Fee calculation fail?".
     *   **Tool-Use**: The AI dynamically selects between SQL aggregation (warnings/counts) and Vector similarity search (root cause analysis).
 *   **Modern Tech Stack**:
-    *   **Backend**: Java 17, Spring Boot 3.2, LangChain4j, H2 Database.
+    *   **Backend**: Java 21, Spring Boot 4.0.1, LangChain4j, H2 Database.
     *   **Frontend**: React + TypeScript + Vite.
 
 ## 🏗️ Architecture
@@ -33,11 +33,20 @@ graph TD
 ## 🛠️ Setup & Run
 
 ### Prerequisites
-*   Java 17+
-*   Node.js & npm
+*   Java 21+
+*   Docker (Optional, but recommended)
 *   OpenAI API Key (Set in `application.properties` or env var)
 
-### Backend
+### Option 1: Docker (Recommended - Full Stack)
+Run the entire application (Backend + Frontend) in a single container.
+
+1.  **Build**: `docker build -t log-bot .`
+2.  **Run**: `docker run -p 9090:9090 -e OPENAI_API_KEY="sk-..." log-bot`
+3.  **Access**: Open [http://localhost:9090](http://localhost:9090)
+
+### Option 2: Manual Setup
+
+#### Backend
 1.  Navigate to the project root.
 2.  Build and run the Spring Boot application:
     ```bash
@@ -46,7 +55,7 @@ graph TD
     ```
     *The server runs on http://localhost:9090*
 
-### Frontend
+#### Frontend (Dev Mode)
 1.  Navigate to the frontend directory:
     ```bash
     cd frontend
