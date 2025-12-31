@@ -1,19 +1,11 @@
-# Upgrade Guide: Java 21 & Spring Boot
+# Upgrade Guide: Java 21 & Spring Boot 4
 
-This document provides the steps to upgrade `log-bot` to **Java 21 (LTS)** and the latest available **Spring Boot** version.
-
-> **Note on Spring Boot 4**: As of current timelines, Spring Boot 4 is not yet generally available. The latest stable major version is **Spring Boot 3.4.x**. This guide targets Spring Boot 3.4+, which offers full support for Java 21 and virtual threads.
+This document provides the steps to upgrade `log-bot` to **Java 21 (LTS)** and **Spring Boot 4**.
 
 ## 1. Upgrade to Java 21
 
-Java 21 is a Long-Term Support (LTS) release that introduces **Virtual Threads** (Project Loom), which significantly improves scalability for I/O-heavy applications like this Log Bot.
-
 ### Step 1: Install Java 21
 Ensure you have the JDK 21 installed on your build machine/server.
-```bash
-java -version
-# Should output: openjdk version "21.x.x" ...
-```
 
 ### Step 2: Update `pom.xml` Properties
 Update the java version property in your `pom.xml`:
@@ -26,49 +18,40 @@ Update the java version property in your `pom.xml`:
 
 ## 2. Upgrade Spring Boot Version
 
-To leverage Java 21 properly (especially Virtual Threads), you should use Spring Boot 3.2 or later.
+To use Spring Boot 4 (now available as **4.0.1**):
 
 ### Step 1: Update Parent POM
-Change the parent version to the latest stable release (e.g., 3.4.1):
+Change the parent version to **4.0.1**:
 
 ```xml
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.1</version> <!-- Update from 3.2.0 -->
+    <version>4.0.1</version>
     <relativePath/>
 </parent>
 ```
 
-## 3. Enable Virtual Threads (Performance Boost)
+## 3. Enable Virtual Threads
 
-Spring Boot 3.2+ running on Java 21 can enable Virtual Threads to handle thousands of concurrent log ingestion requests with minimal overhead.
+Spring Boot 4 runs on Java 21 by default and has first-class support for Virtual Threads.
 
-### Step 1: Add Configuration
-Add this line to `src/main/resources/application.properties`:
+### Configuration
+Add this to `src/main/resources/application.properties`:
 
 ```properties
 spring.threads.virtual.enabled=true
 ```
 
-## 4. Verification
+## 4. Migration Notes
 
-After updating, clean and rebuild the application:
+*   **Javax to Jakarta**: Ensure you are already using `jakarta.*` packages (standard since Spring Boot 3).
+*   **Deprecations**: Check the Spring Boot 4 Release Notes for any removed APIs.
+*   **Security**: If using Spring Security, ensure you update to the corresponding major version compatible with Boot 4.
+
+## 5. Verification
 
 ```bash
 mvn clean package
 java -jar target/log-bot-0.0.1-SNAPSHOT.jar
 ```
-
-### Checklist
-- [ ] Application starts without errors.
-- [ ] `java -version` confirms 21.
-- [ ] Logs show Tomcat starting with virtual threads (if enabled).
-
-## Why Upgrade?
-
-| Feature | Benefit for Log Bot |
-| :--- | :--- |
-| **Virtual Threads** | High-throughput log ingestion without blocking OS threads. |
-| **Generational ZGC** | Lower latency GC pauses, ensuring smoother AI interactions. |
-| **Pattern Matching** | Cleaner code in `LogAnalysisService` (e.g., `switch` expressions). |
