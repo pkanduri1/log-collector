@@ -49,7 +49,7 @@ To ensure consistent and secure execution, containerize the application.
 
 **Dockerfile (Backend)**:
 ```dockerfile
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 VOLUME /tmp
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} app.jar
