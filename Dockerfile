@@ -1,18 +1,26 @@
-# Start with a lightweight Java 21 Runtime (Compatible with Mac M1/M2/M3 & Intel)
-FROM eclipse-temurin:21-jre-alpine
-
-# Set working directory inside the container
+# Stage 1: Build React Frontend
+FROM node:20-alpine AS frontend-build
 WORKDIR /app
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend/ ./
+RUN npm run build
 
-# Copy the built artifact from your local machine
-# detailed-note: Run 'mvn clean package -DskipTests' locally before building this image
-COPY target/log-bot-0.0.1-SNAPSHOT.jar app.jar
+# Stage 2: Build Spring Boot Backend
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS backend-build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+# Copy React build to Spring Boot static resources so it is served at /
+COPY --from=frontend-build /app/dist ./src/main/resources/static
+RUN mvn clean package -DskipTests
 
-# Expose the application port
+# Stage 3: Final Runtime Image
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=backend-build /app/target/log-bot-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 9090
-
-# Set default environment variable (override this when running)
 ENV OPENAI_API_KEY=""
-
-# Run the application
+# Install required libraries for ONNX Runtime (used by embedding model)
+RUN apk add --no-cache libstdc++ gcompat
 ENTRYPOINT ["java", "-jar", "app.jar"]
