@@ -1,0 +1,14 @@
+2025-12-30 08:15:30.123 INFO [PaymentService] [PAY-PRC-1001] Starting batch payment processing
+2025-12-30 08:16:10.450 ERROR [PaymentService] [PAY-PRC-1002] Payment failed for batch #994. Connection timeout to Gateway.
+java.net.SocketTimeoutException: Connect timed out
+    at java.net.PlainSocketImpl.socketConnect(Native Method)
+    at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+    at com.bank.payment.Gateway.connect(Gateway.java:45)
+2025-12-30 09:00:00.000 INFO [CustomerService] [CUST-SYNC-001] Daily customer sync started
+2025-12-30 09:05:12.111 ERROR [CustomerService] [CUST-VAL-ERR] Invalid address format for CustomerID: 8832. Missing ZipCode.
+2025-12-30 14:20:00.555 ERROR [InterestService] [INT-CALC-FAIL] Failed to calculate late fees for Account 4455.
+java.lang.ArithmeticException: / by zero
+    at com.bank.interest.Calculator.calculate(Calculator.java:22)
+    at com.bank.interest.BatchJob.run(BatchJob.java:10)
+2025-12-30 18:45:30.999 ERROR [TransferService] [SFTP-DROP-01] File transfer dropped. Retrying...
+2025-12-31 08:00:00.000 INFO [PaymentService] [PAY-PRC-1003] Batch payment processing completed successfully.

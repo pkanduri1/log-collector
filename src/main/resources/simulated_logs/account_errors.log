@@ -1,0 +1,5 @@
+2023-10-27 09:00:01.111 ERROR [AccountService] [ACC-CREATE] Failed to create account. User 998877 failed KYC verification. Reason: Document expired.
+2023-10-27 09:15:22.222 INFO  [AccountService] [ACC-UPDATE] Account 12345678 updated successfully. Address changed.
+2023-10-27 09:30:33.333 ERROR [AccountService] [ACC-UPDATE] Optimistic locking failure. Account 55555555 was updated by another transaction.
+2023-10-27 09:45:44.444 ERROR [AccountService] [ACC-DELETE] Cannot delete account 11112222. Active balance remaining.
+2023-10-27 10:00:55.555 ERROR [AccountService] [ACC-GET] Account not found: 00000000.

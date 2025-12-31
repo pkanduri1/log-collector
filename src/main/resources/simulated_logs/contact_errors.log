@@ -1,0 +1,4 @@
+2023-10-27 11:11:11.000 ERROR [ContactService] [CONTACT-SYNC] Failed to sync contact 4444. CRM system unavailable.
+2023-10-27 11:22:22.111 ERROR [ContactService] [CONTACT-VAL] Invalid email format for contact 5555: 'user@@example.com'.
+2023-10-27 11:33:33.222 INFO  [ContactService] [CONTACT-UPDATE] Contact 6666 preferences updated.
+2023-10-27 11:44:44.333 ERROR [ContactService] [CONTACT-DUP] Duplicate contact detected. Phone number +1-555-0199 already exists for contact 7777.

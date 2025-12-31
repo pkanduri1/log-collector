@@ -1,0 +1,7 @@
+2023-10-27 10:15:30.123 ERROR [TransactionService] [TXN-1001] Transaction failed: Insufficient funds for account 12345678. Amount: 500.00 USD.
+2023-10-27 10:15:35.456 INFO  [TransactionService] [TXN-1002] Transaction successful. Amount: 200.00 USD.
+2023-10-27 10:16:01.789 ERROR [TransactionService] [TXN-1003] Transaction timeout. Gateway timeout waiting for response from PaymentProviderX.
+2023-10-27 10:17:12.321 ERROR [TransactionService] [TXN-1004] Fraud detection alert. Suspicious activity detected for account 87654321. Blocked.
+2023-10-27 10:20:45.001 ERROR [TransactionService] [TXN-1005] Database connection lost during transaction commit. Retrying...
+2023-10-27 10:20:46.001 INFO  [TransactionService] [TXN-1005] Retry successful. Transaction committed.
+2023-10-27 10:30:11.222 ERROR [TransactionService] [TXN-1006] Invalid currency code 'XYZ'. Transaction rejected.
