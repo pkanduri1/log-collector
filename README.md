@@ -23,7 +23,7 @@ The system follows a Metadata Envelope pattern to ensure logs are traceable and 
 graph TD
     RawFile[("Raw Log File")] -->|Ingest| IngestionService
     IngestionService -->|Chunk & Tag| DB[("H2 Database\n(Structured)")]
-    IngestionService -->|Embed| Vector[("Vector Store\n(Semantic)")]
+    IngestionService -->|Embed| Vector[("ChromaDB\n(Vectors)")]
     
     User -->|Question| AI[("AI Agent")]
     AI -->|Filter by Type| DB
@@ -40,10 +40,27 @@ graph TD
 ### Option 1: Docker (Recommended - Full Stack)
 Run the entire application (Backend + Frontend) in a single container.
 
-1.  **Build**: `docker build -t log-bot .`
+1.  **Start ChromaDB**:
+    ```bash
+    docker run -d --name chromadb -p 8000:8000 chromadb/chroma:latest
+    ```
+2.  **Build**: `docker build -t log-bot .`
     > **Note for Deploying to Linux Servers (AMD64) from Mac (ARM64)**:
     > Use `docker build --platform linux/amd64 -t log-bot .`
-2.  **Run**: `docker run -p 9090:9090 -e OPENAI_API_KEY="sk-..." log-bot`
+2.  **Run**:
+    *   **Mac/Windows**:
+        ```bash
+        docker run -p 9090:9090 \
+          -e OPENAI_API_KEY="sk-..." \
+          -e CHROMA_URL="http://host.docker.internal:8000" \
+          log-bot
+        ```
+    *   **Linux**:
+        ```bash
+        docker run --network host \
+          -e OPENAI_API_KEY="sk-..." \
+          log-bot
+        ```
 3.  **Access**: Open [http://localhost:9090](http://localhost:9090)
 
 ### Option 2: Manual Setup
