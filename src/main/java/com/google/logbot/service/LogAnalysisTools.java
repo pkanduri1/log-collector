@@ -7,6 +7,14 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Toolset exposed to the AI Agent.
+ * <p>
+ * These methods are annotated with @Tool, allowing the LLM to call them
+ * dynamically to perform actions like querying the database or summarizing
+ * logs.
+ * </p>
+ */
 @Component
 public class LogAnalysisTools {
 

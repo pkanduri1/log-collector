@@ -13,6 +13,16 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Parser for legacy Text-based Transaction Reports.
+ * <p>
+ * Extracts structured data (Account IDs, Error Codes) from fixed-width or
+ * semi-structured
+ * text reports. Creates both Semantic Documents for vector search and
+ * Structured Entities
+ * for SQL analysis.
+ * </p>
+ */
 @Service
 public class TransactionReportParser {
 
@@ -36,6 +46,13 @@ public class TransactionReportParser {
     // line as account or separate
     // For now, key focus is Account ID + Error
 
+    /**
+     * Parses the content of a transaction report.
+     *
+     * @param content  The raw text content of the report.
+     * @param filename The source filename.
+     * @return A list of {@link Document} objects for vector ingestion.
+     */
     public List<Document> parse(String content, String filename) {
         List<Document> documents = new ArrayList<>();
         String[] lines = content.split("\n");
@@ -61,11 +78,11 @@ public class TransactionReportParser {
                 String text = String.format("Account: %s | Error: %s", currentAccountId, fullErrorMessage);
 
                 Metadata metadata = Metadata.from("source_file", filename);
-                metadata.add("log_type", "Transaction Report Error");
-                metadata.add("account_id", currentAccountId);
-                metadata.add("error_code", errorCode);
+                metadata.put("log_type", "Transaction Report Error");
+                metadata.put("account_id", currentAccountId);
+                metadata.put("error_code", errorCode);
                 if (reportTime != null) {
-                    metadata.add("report_date", reportTime.toString());
+                    metadata.put("report_date", reportTime.toString());
                 }
 
                 documents.add(Document.from(text, metadata));

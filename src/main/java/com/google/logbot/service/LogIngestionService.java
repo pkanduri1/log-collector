@@ -17,6 +17,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Orchestrator service for log ingestion.
+ * <p>
+ * Scans for files, routes them to appropriate parsers (Log vs Report),
+ * and handles both Structured (DB) and Semantic (Vector) ingestion.
+ * </p>
+ */
 @Service
 public class LogIngestionService {
 
@@ -36,6 +43,11 @@ public class LogIngestionService {
         this.reportParser = reportParser;
     }
 
+    /**
+     * Main entry point for scanning and ingesting logs from the classpath.
+     * Looks for files in 'simulated_logs' directory and the root
+     * 'transaction_log.txt'.
+     */
     public void ingestLogs() {
         try {
             PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
@@ -86,15 +98,15 @@ public class LogIngestionService {
                             Metadata metadata = Metadata.from("source_file", resource.getFilename());
                             // Basic heuristic for log_type in vector metadata
                             if (line.contains("PAY-PRC-"))
-                                metadata.add("log_type", "Payment Post");
+                                metadata.put("log_type", "Payment Post");
                             else if (line.contains("CUST-VAL-ERR"))
-                                metadata.add("log_type", "Address Update");
+                                metadata.put("log_type", "Address Update");
                             else if (line.contains("INT-CALC-FAIL"))
-                                metadata.add("log_type", "Late Fee Calc");
+                                metadata.put("log_type", "Late Fee Calc");
                             else if (line.contains("SFTP-DROP-01"))
-                                metadata.add("log_type", "File Transfer");
+                                metadata.put("log_type", "File Transfer");
                             else
-                                metadata.add("log_type", "General");
+                                metadata.put("log_type", "General");
 
                             return Document.from(line, metadata);
                         })

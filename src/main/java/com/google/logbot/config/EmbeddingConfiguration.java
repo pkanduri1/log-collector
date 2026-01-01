@@ -17,6 +17,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration class for LangChain4j components.
+ * <p>
+ * This class configures the core AI components including the Embedding Model,
+ * Vector Store, Chat Language Model, and the AI Service (LogAssistant).
+ * It sets up a RAG (Retrieval-Augmented Generation) pipeline using an
+ * in-memory vector store and an ONNX-based embedding model.
+ * </p>
+ */
 @Configuration
 public class EmbeddingConfiguration {
 
@@ -54,16 +63,40 @@ public class EmbeddingConfiguration {
     @Value("${langchain4j.open-ai.chat-model.api-key:demo}")
     private String openAiApiKey;
 
+    /**
+     * Creates an Embedding Model bean using the AllMiniLmL6V2 ONNX model.
+     * This model runs locally in the JVM and does not require an external API.
+     *
+     * @return The configured {@link EmbeddingModel}.
+     */
     @Bean
     public EmbeddingModel embeddingModel() {
         return new AllMiniLmL6V2EmbeddingModel();
     }
 
+    /**
+     * Creates an In-Memory Embedding Store.
+     * Used to store vector embeddings of log entries for semantic search.
+     * Note: This store is volatile and data is lost on application restart.
+     *
+     * @return The {@link EmbeddingStore} for {@link TextSegment}s.
+     */
     @Bean
     public EmbeddingStore<TextSegment> embeddingStore() {
         return new InMemoryEmbeddingStore<>();
     }
 
+    /**
+     * Creates the LogAssistant AI Service bean.
+     * This service acts as the high-level interface for interacting with the AI.
+     * It connects the Chat Model, RAG Retriever, and Tools.
+     *
+     * @param chatLanguageModel The LLM to use for chat.
+     * @param embeddingStore    The store containing log embeddings.
+     * @param embeddingModel    The model used to embed queries.
+     * @param logAnalysisTools  The tools available to the AI (SQL, etc.).
+     * @return A proxy instance of the {@link LogAssistant} interface.
+     */
     @Bean
     public LogAssistant logAssistant(ChatLanguageModel chatLanguageModel,
             EmbeddingStore<TextSegment> embeddingStore,
@@ -85,6 +118,11 @@ public class EmbeddingConfiguration {
                 .build();
     }
 
+    /**
+     * Creates a Chat Language Model bean using OpenAI.
+     *
+     * @return The configured {@link OpenAiChatModel}.
+     */
     @Bean
     public ChatLanguageModel chatLanguageModel() {
         return OpenAiChatModel.builder()

@@ -10,6 +10,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Semantic Search Service.
+ * <p>
+ * Manages direct interaction with the Embedding Store for retrieving relevant
+ * log segments based on vector similarity. Used by RAG components.
+ * </p>
+ */
 @Service
 public class LogQueryService {
 
@@ -21,6 +28,12 @@ public class LogQueryService {
         this.embeddingModel = embeddingModel;
     }
 
+    /**
+     * Searches for log segments semantically similar to the query.
+     *
+     * @param query The search text.
+     * @return List of matching text segments from the logs.
+     */
     public List<String> search(String query) {
         Embedding queryEmbedding = embeddingModel.embed(query).content();
         List<EmbeddingMatch<TextSegment>> relevant = embeddingStore.findRelevant(queryEmbedding, 5);

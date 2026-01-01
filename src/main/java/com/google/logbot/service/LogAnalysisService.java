@@ -11,6 +11,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Service for parsing and analyzing standard log files.
+ * <p>
+ * Handles parsing of timestamp-header logs, chunking multi-line stack traces,
+ * and saving structured data to the LogRepository.
+ * </p>
+ */
 @Service
 public class LogAnalysisService {
 
@@ -34,6 +41,13 @@ public class LogAnalysisService {
         this.logRepository = logRepository;
     }
 
+    /**
+     * Parses a raw log file content and saves structured entries to the database.
+     * Chunks the content by timestamp to handle multi-line error stacks.
+     *
+     * @param content  The full string content of the log file.
+     * @param filename The name of the file (metadata).
+     */
     public void parseAndSaveLogFile(String content, String filename) {
         List<String> logBlocks = chunkLogsByTimestamp(content);
 

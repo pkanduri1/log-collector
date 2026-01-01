@@ -3,10 +3,19 @@ package com.google.logbot.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * Entity representing a structured log entry.
+ * <p>
+ * This class maps to the "logs" table in the database and stores
+ * both standard log attributes (timestamp, level) and enriched metadata
+ * (error code, log type) derived during ingestion.
+ * </p>
+ */
 @Entity
 @Table(name = "logs")
 public class LogEntry {
 
+    /** Unique ID of the log entry. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -14,14 +23,21 @@ public class LogEntry {
     private LocalDateTime timestamp;
     private String level;
     private String serviceName;
-    private String errorCode; // Extracted error code, e.g., TXN-1001
 
-    private String logType; // e.g., Payment_Batch, Customer_Sync
+    /** Extracted error code (e.g., TXN-1001), used for grouping. */
+    private String errorCode;
+
+    /** Logical classification of the log (e.g., Payment_Batch). */
+    private String logType;
+
+    /** The original filename from which this log was ingested. */
     private String sourceFile;
 
+    /** The primary log message or summary. */
     @Column(length = 2000)
     private String message;
 
+    /** The full raw content of the log, including stack traces. */
     @Column(length = 5000)
     private String fullLog;
 
