@@ -3,8 +3,9 @@ package com.google.logbot.service;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
+import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,9 +37,15 @@ public class LogQueryService {
      */
     public List<String> search(String query) {
         Embedding queryEmbedding = embeddingModel.embed(query).content();
-        List<EmbeddingMatch<TextSegment>> relevant = embeddingStore.findRelevant(queryEmbedding, 5);
 
-        return relevant.stream()
+        EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
+                .queryEmbedding(queryEmbedding)
+                .maxResults(5)
+                .build();
+
+        EmbeddingSearchResult<TextSegment> result = embeddingStore.search(request);
+
+        return result.matches().stream()
                 .map(match -> match.embedded().text())
                 .collect(Collectors.toList());
     }
