@@ -34,8 +34,38 @@ public class LogAnalysisTools {
 
     @Tool("Returns detailed log messages for a specific error code")
     public String getErrorDetails(String errorCode) {
-        return logRepository.findByErrorCode(errorCode).stream()
+        String details = logRepository.findByErrorCode(errorCode).stream()
                 .map(log -> String.format("[%s] %s: %s", log.getTimestamp(), log.getServiceName(), log.getMessage()))
                 .collect(Collectors.joining("\n"));
+
+        if (details.isEmpty()) {
+            return "No detailed logs found for error code: " + errorCode;
+        }
+        return details;
+    }
+
+    @Tool("Returns a summary of errors for a specific file")
+    public String getErrorSummaryForFile(String filename) {
+        List<Object[]> results = logRepository.countErrorsByCodeAndFile(filename);
+        if (results.isEmpty()) {
+            return "No errors found in file: " + filename;
+        }
+
+        StringBuilder sb = new StringBuilder("Error Summary for " + filename + ":\n");
+        for (Object[] row : results) {
+            String errorCode = (String) row[0];
+            Long count = (Long) row[1];
+            sb.append(String.format("- %s: %d occurrences\n", errorCode, count));
+        }
+        return sb.toString();
+    }
+
+    @Tool("Lists all log files that have been ingested")
+    public String listIngestedFiles() {
+        List<String> files = logRepository.findDistinctSourceFiles();
+        if (files.isEmpty()) {
+            return "No files found in the database.";
+        }
+        return "Ingested Files:\n" + String.join("\n", files);
     }
 }

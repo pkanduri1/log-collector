@@ -19,4 +19,10 @@ public interface LogRepository extends JpaRepository<LogEntry, Long> {
 
     // Find logs by level
     List<LogEntry> findByLevel(String level);
+
+    @Query("SELECT l.errorCode, COUNT(l) FROM LogEntry l WHERE l.sourceFile = :filename AND l.level = 'ERROR' AND l.errorCode IS NOT NULL GROUP BY l.errorCode ORDER BY COUNT(l) DESC")
+    List<Object[]> countErrorsByCodeAndFile(String filename);
+
+    @Query("SELECT DISTINCT l.sourceFile FROM LogEntry l")
+    List<String> findDistinctSourceFiles();
 }

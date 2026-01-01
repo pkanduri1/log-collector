@@ -24,57 +24,62 @@ public class LogIngestionService {
 
     private final EmbeddingStoreIngestor ingestor;
     private final LogAnalysisService analysisService;
+    private final TransactionReportParser reportParser;
 
     public LogIngestionService(EmbeddingModel embeddingModel, EmbeddingStore<TextSegment> embeddingStore,
-            LogAnalysisService analysisService) {
+            LogAnalysisService analysisService, TransactionReportParser reportParser) {
         this.ingestor = EmbeddingStoreIngestor.builder()
                 .embeddingModel(embeddingModel)
                 .embeddingStore(embeddingStore)
                 .build();
         this.analysisService = analysisService;
+        this.reportParser = reportParser;
     }
 
     public void ingestLogs() {
         try {
             PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-            Resource[] resources = resolver.getResources("classpath:simulated_logs/*.log");
+            // Load both .log and .txt files
+            Resource[] resources = resolver.getResources("classpath:simulated_logs/*.*");
+            // Also check root if transaction_log.txt is there
+            Resource[] rootResources = resolver.getResources("classpath:transaction_log.txt");
 
-            for (Resource resource : resources) {
-                logger.info("Ingesting log file: {}", resource.getFilename());
-                String content = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            ingestResources(resources);
+            ingestResources(rootResources);
 
+        } catch (IOException e) {
+            logger.error("Error reading log files", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void ingestResources(Resource[] resources) throws IOException {
+        if (resources == null)
+            return;
+
+        for (Resource resource : resources) {
+            if (!resource.exists())
+                continue;
+
+            logger.info("Ingesting file: {}", resource.getFilename());
+            String content = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
+            if (resource.getFilename().endsWith(".txt")) {
+                // Handle Transaction Report
+                List<Document> documents = reportParser.parse(content, resource.getFilename());
+                if (!documents.isEmpty()) {
+                    ingestor.ingest(documents);
+                    logger.info("Ingested {} report entries from {}", documents.size(), resource.getFilename());
+                }
+            } else if (resource.getFilename().endsWith(".log")) {
                 // 1. Structured Ingestion (H2 Database)
-                // Pass full content to handle multi-line logs and timestamp chunking
                 try {
                     analysisService.parseAndSaveLogFile(content, resource.getFilename());
                 } catch (Exception e) {
                     logger.error("Error parsing structured logs for {}", resource.getFilename(), e);
                 }
 
-                // 2. Vector Ingestion (Embedding Store)
-                // We want to add metadata: source_file, log_type (if identifiable from line?
-                // NO, likely need block).
-                // Ideally we embed the SAME blocks that we saved to DB.
-                // But for now, let's stick to line-based or simple text splitting, but add file
-                // metadata.
-                // User requirement: "Filters ChromaDB ... log_type == 'Payment'".
-                // This implies we need to know the log_type of the segment.
-                // I will read the LogEntries back from DB? No that's slow.
-                // I will duplicate the regex logic here for now to tag the segments, or just
-                // tag with filename and hope filename maps to type?
-                // The filename is "banking_logs.log", it contains mixed types.
-                // So we MUST chunk by timestamp here too to get the correct context for the
-                // vector.
-
-                // Let's rely on standard document splitter but add source metadata.
-                // If we really want "log_type" in metadata, we have to parse it.
-                // I'll simple add "source_file" for now as "traceability" is a key requirement.
-                // Implementing full chunking here again is risky without a shared utility.
-                // I will assume for this POC that Vector Search finds "meaning" and we filter
-                // by "log_type" in SQL?
-                // No User said "Filters ChromaDB".
-                // Okay, I will implement a basic line-inspector for metadata.
-
+                // 2. Vector Ingestion (Embedding Store) for Logs
                 List<Document> documents = content.lines()
                         .filter(line -> !line.trim().isEmpty())
                         .map(line -> {
@@ -98,9 +103,6 @@ public class LogIngestionService {
                 ingestor.ingest(documents);
                 logger.info("Ingested {} entries from {}", documents.size(), resource.getFilename());
             }
-        } catch (IOException e) {
-            logger.error("Error reading log files", e);
-            throw new RuntimeException(e);
         }
     }
 }

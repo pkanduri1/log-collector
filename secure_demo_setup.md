@@ -58,6 +58,8 @@ ENTRYPOINT ["java","-jar","/app.jar"]
 ```
 
 **Run Command**:
+> **Note**: If building on Mac for a Linux server, remember to use `--platform linux/amd64` during build.
+
 ```bash
 docker run -d -p 9090:9090 -e OPENAI_API_KEY="sk-my-secret-key" my-log-bot
 ```

@@ -41,6 +41,8 @@ graph TD
 Run the entire application (Backend + Frontend) in a single container.
 
 1.  **Build**: `docker build -t log-bot .`
+    > **Note for Deploying to Linux Servers (AMD64) from Mac (ARM64)**:
+    > Use `docker build --platform linux/amd64 -t log-bot .`
 2.  **Run**: `docker run -p 9090:9090 -e OPENAI_API_KEY="sk-..." log-bot`
 3.  **Access**: Open [http://localhost:9090](http://localhost:9090)
 

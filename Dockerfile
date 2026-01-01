@@ -16,11 +16,11 @@ COPY --from=frontend-build /app/dist ./src/main/resources/static
 RUN mvn clean package -DskipTests
 
 # Stage 3: Final Runtime Image
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=backend-build /app/target/log-bot-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 9090
 ENV OPENAI_API_KEY=""
 # Install required libraries for ONNX Runtime (used by embedding model)
-RUN apk add --no-cache libstdc++ gcompat
+# Standard JRE image (Ubuntu/Debian based) usually has glibc, which ONNX Runtime needs.
 ENTRYPOINT ["java", "-jar", "app.jar"]

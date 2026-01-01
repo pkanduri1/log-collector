@@ -73,7 +73,7 @@ public class EmbeddingConfiguration {
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
                 .embeddingStore(embeddingStore)
                 .embeddingModel(embeddingModel)
-                .maxResults(3)
+                .maxResults(20) // Increased to allow better analysis of multiple errors
                 .minScore(0.6)
                 .build();
 
